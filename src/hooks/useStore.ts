@@ -131,10 +131,10 @@ export function useStore() {
     }
   }, [isDark]);
 
-  const login = useCallback((email: string, password: string, role: 'buyer' | 'seller') => {
+  const login = useCallback((email: string, password: string, role: 'buyer' | 'seller', name: string) => {
     const newUser: User = {
       id: `user_${Date.now()}`,
-      name: role === 'seller' ? 'فروشنده' : 'خریدار',
+      name,
       email,
       role,
     };

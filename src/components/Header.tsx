@@ -136,7 +136,10 @@ export function Header({
                     پنل مدیریت
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={onLogout} className="text-destructive">
+                <DropdownMenuItem 
+                  onClick={onLogout} 
+                  className="bg-gradient-to-r from-red-500 to-red-600 text-white focus:bg-red-600 focus:text-white mt-1 cursor-pointer"
+                >
                   <LogOut className="h-4 w-4 ml-2" />
                   خروج
                 </DropdownMenuItem>

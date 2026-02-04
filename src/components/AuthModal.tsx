@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, password: string, role: 'buyer' | 'seller') => void;
+  onLogin: (email: string, password: string, role: 'buyer' | 'seller', name: string) => void;
 }
 
 export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
@@ -19,7 +19,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password) {
-      onLogin(email, password, role);
+      onLogin(email, password, role, 'User');
       onClose();
     }
   };

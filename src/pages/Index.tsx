@@ -1,24 +1,24 @@
 import { useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/hooks/useStore';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { ProductCard } from '@/components/ProductCard';
 import { CartDrawer } from '@/components/CartDrawer';
-import { AuthModal } from '@/components/AuthModal';
 import { SellerDashboard } from '@/components/SellerDashboard';
 import { ProductModal } from '@/components/ProductModal';
 import { Footer } from '@/components/Footer';
 import { Product } from '@/types';
 
 const Index = () => {
+  const navigate = useNavigate();
   const {
     user,
     products,
     cart,
     isDark,
-    login,
     logout,
     addToCart,
     removeFromCart,
@@ -32,7 +32,6 @@ const Index = () => {
   } = useStore();
 
   const [cartOpen, setCartOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,7 +62,7 @@ const Index = () => {
         isDark={isDark}
         onToggleDark={toggleDark}
         onOpenCart={() => setCartOpen(true)}
-        onOpenAuth={() => setAuthOpen(true)}
+        onOpenAuth={() => navigate('/login')}
         onLogout={logout}
         onOpenDashboard={() => setDashboardOpen(true)}
         searchQuery={searchQuery}
@@ -122,12 +121,6 @@ const Index = () => {
         cartTotal={cartTotal}
         onUpdateQuantity={updateCartQuantity}
         onRemove={removeFromCart}
-      />
-
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        onLogin={login}
       />
 
       {user && user.role === 'seller' && (
