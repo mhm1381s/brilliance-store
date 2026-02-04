@@ -21,6 +21,7 @@ interface HeaderProps {
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenDashboard: () => void;
+  onOpenProfile: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
@@ -34,6 +35,7 @@ export function Header({
   onOpenAuth,
   onLogout,
   onOpenDashboard,
+  onOpenProfile,
   searchQuery,
   onSearchChange,
 }: HeaderProps) {
@@ -101,6 +103,15 @@ export function Header({
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
+            onClick={onOpenProfile}
+            className="p-2 rounded-full hover:bg-secondary transition-colors"
+          >
+            <User className="h-5 w-5" />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onOpenCart}
             className="relative p-2 rounded-full hover:bg-secondary transition-colors"
           >
@@ -117,34 +128,44 @@ export function Header({
           </motion.button>
 
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5"
-                >
-                  <User className="h-4 w-4" />
-                  <span className="text-sm">{user.name}</span>
-                  <Badge variant={user.role === 'seller' ? 'default' : 'secondary'} className="text-xs">
-                    {user.role === 'seller' ? 'فروشنده' : 'خریدار'}
-                  </Badge>
-                </motion.button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {user.role === 'seller' && (
-                  <DropdownMenuItem onClick={onOpenDashboard}>
-                    پنل مدیریت
+            <>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onOpenProfile}
+                className="p-2 rounded-full hover:bg-secondary transition-colors"
+              >
+                <User className="h-5 w-5" />
+              </motion.button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5"
+                  >
+                    <span className="text-sm">{user.name}</span>
+                    <Badge variant={user.role === 'seller' ? 'default' : 'secondary'} className="text-xs">
+                      {user.role === 'seller' ? 'فروشنده' : 'خریدار'}
+                    </Badge>
+                  </motion.button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {user.role === 'seller' && (
+                    <DropdownMenuItem onClick={onOpenDashboard}>
+                      پنل مدیریت
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem 
+                    onClick={onLogout} 
+                    className="bg-gradient-to-r from-red-500 to-red-600 text-white focus:bg-red-600 focus:text-white mt-1 cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 ml-2" />
+                    خروج
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem 
-                  onClick={onLogout} 
-                  className="bg-gradient-to-r from-red-500 to-red-600 text-white focus:bg-red-600 focus:text-white mt-1 cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4 ml-2" />
-                  خروج
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <Button onClick={onOpenAuth} variant="default" size="sm">
               ورود / ثبت‌نام

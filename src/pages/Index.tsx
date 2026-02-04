@@ -65,6 +65,7 @@ const Index = () => {
         onOpenAuth={() => navigate('/login')}
         onLogout={logout}
         onOpenDashboard={() => setDashboardOpen(true)}
+        onOpenProfile={() => {}}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
