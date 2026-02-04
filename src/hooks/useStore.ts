@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { User, Product, CartItem } from '@/types';
+import { User, Product, CartItem, Order, UserRole } from '@/types';
 import { useLocalStorage } from './useLocalStorage';
 import washingMachine from '@/assets/products/washing-machine.jpg';
 import refrigerator from '@/assets/products/refrigerator.jpg';
@@ -16,6 +16,8 @@ const defaultProducts: Product[] = [
     name: 'ماشین لباسشویی هوشمند',
     description: 'ماشین لباسشویی 9 کیلویی با تکنولوژی AI و کنترل از راه دور',
     price: 28500000,
+    originalPrice: 32000000,
+    discount: 11,
     category: 'لوازم شستشو',
     image: washingMachine,
     stock: 15,
@@ -29,6 +31,8 @@ const defaultProducts: Product[] = [
     name: 'یخچال ساید بای ساید',
     description: 'یخچال فریزر با صفحه نمایش لمسی و قابلیت‌های هوشمند',
     price: 75000000,
+    originalPrice: 85000000,
+    discount: 12,
     category: 'یخچال و فریزر',
     image: refrigerator,
     stock: 8,
@@ -55,6 +59,8 @@ const defaultProducts: Product[] = [
     name: 'هدفون بی‌سیم پریمیوم',
     description: 'هدفون بلوتوثی با قابلیت حذف نویز و باتری 30 ساعته',
     price: 4500000,
+    originalPrice: 5500000,
+    discount: 18,
     category: 'لوازم جانبی',
     image: headphones,
     stock: 50,
@@ -94,6 +100,8 @@ const defaultProducts: Product[] = [
     name: 'کولر گازی اینورتر',
     description: 'کولر گازی 24000 با تکنولوژی کم‌مصرف اینورتر',
     price: 42000000,
+    originalPrice: 48000000,
+    discount: 13,
     category: 'سرمایش و گرمایش',
     image: airConditioner,
     stock: 12,
@@ -117,11 +125,31 @@ const defaultProducts: Product[] = [
   },
 ];
 
+const defaultUsers: User[] = [
+  {
+    id: 'admin1',
+    name: 'مدیر سیستم',
+    email: 'admin@electroshop.ir',
+    role: 'admin',
+    createdAt: '2024-01-01',
+  },
+  {
+    id: 'seller1',
+    name: 'الکترو مارکت',
+    email: 'seller@electroshop.ir',
+    role: 'seller',
+    createdAt: '2024-01-15',
+  },
+];
+
 export function useStore() {
   const [user, setUser] = useLocalStorage<User | null>('electro-user', null);
   const [products, setProducts] = useLocalStorage<Product[]>('electro-products', defaultProducts);
   const [cart, setCart] = useLocalStorage<CartItem[]>('electro-cart', []);
   const [isDark, setIsDark] = useLocalStorage<boolean>('electro-dark', false);
+  const [orders, setOrders] = useLocalStorage<Order[]>('electro-orders', []);
+  const [allUsers, setAllUsers] = useLocalStorage<User[]>('electro-users', defaultUsers);
+  const [wishlist, setWishlist] = useLocalStorage<string[]>('electro-wishlist', []);
 
   useEffect(() => {
     if (isDark) {
@@ -131,16 +159,25 @@ export function useStore() {
     }
   }, [isDark]);
 
-  const login = useCallback((email: string, password: string, role: 'buyer' | 'seller', name: string) => {
+  const login = useCallback((email: string, password: string, role: UserRole, name: string) => {
     const newUser: User = {
       id: `user_${Date.now()}`,
       name,
       email,
       role,
+      createdAt: new Date().toISOString(),
     };
     setUser(newUser);
+    // Add to all users if new
+    setAllUsers((prev) => {
+      const exists = prev.find((u) => u.email === email);
+      if (!exists) {
+        return [...prev, newUser];
+      }
+      return prev;
+    });
     return true;
-  }, [setUser]);
+  }, [setUser, setAllUsers]);
 
   const logout = useCallback(() => {
     setUser(null);
@@ -177,6 +214,10 @@ export function useStore() {
     );
   }, [setCart, removeFromCart]);
 
+  const clearCart = useCallback(() => {
+    setCart([]);
+  }, [setCart]);
+
   const addProduct = useCallback((product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
     if (!user || user.role !== 'seller') return;
     const newProduct: Product = {
@@ -202,6 +243,37 @@ export function useStore() {
     setIsDark((prev) => !prev);
   }, [setIsDark]);
 
+  // Order management
+  const addOrder = useCallback((order: Order) => {
+    setOrders((prev) => [...prev, order]);
+  }, [setOrders]);
+
+  const updateOrderStatus = useCallback((orderId: string, status: Order['status']) => {
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status } : o))
+    );
+  }, [setOrders]);
+
+  // User management (admin only)
+  const updateUserRole = useCallback((userId: string, role: UserRole) => {
+    setAllUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role } : u))
+    );
+  }, [setAllUsers]);
+
+  const deleteUser = useCallback((userId: string) => {
+    setAllUsers((prev) => prev.filter((u) => u.id !== userId));
+  }, [setAllUsers]);
+
+  // Wishlist management
+  const toggleWishlist = useCallback((productId: string) => {
+    setWishlist((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  }, [setWishlist]);
+
   const cartTotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -210,15 +282,24 @@ export function useStore() {
     products,
     cart,
     isDark,
+    orders,
+    allUsers,
+    wishlist,
     login,
     logout,
     addToCart,
     removeFromCart,
     updateCartQuantity,
+    clearCart,
     addProduct,
     updateProduct,
     deleteProduct,
     toggleDark,
+    addOrder,
+    updateOrderStatus,
+    updateUserRole,
+    deleteUser,
+    toggleWishlist,
     cartTotal,
     cartCount,
   };

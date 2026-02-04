@@ -12,13 +12,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Package, User as UserIcon, MapPin, Settings, LogOut } from 'lucide-react';
+import { Package, User as UserIcon, MapPin, Settings, LogOut, Heart, ShoppingBag } from 'lucide-react';
 
 const Profile = () => {
   const navigate = useNavigate();
   const {
     user,
     cart,
+    orders,
     isDark,
     logout,
     toggleDark,
@@ -31,23 +32,8 @@ const Profile = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Mock orders data
-  const orders = [
-    {
-      id: 'ORD-12345',
-      date: '1402/11/15',
-      status: 'delivered',
-      total: 28500000,
-      items: ['ماشین لباسشویی هوشمند'],
-    },
-    {
-      id: 'ORD-67890',
-      date: '1402/10/20',
-      status: 'processing',
-      total: 4500000,
-      items: ['هدفون بی‌سیم پریمیوم'],
-    },
-  ];
+  // User's orders
+  const userOrders = orders.filter((o) => o.userId === user?.id);
 
   if (!user) {
     return (
@@ -108,13 +94,26 @@ const Profile = () => {
               </TabsTrigger>
               <TabsTrigger value="orders">
                 <Package className="h-4 w-4 ml-2" />
-                سفارش‌ها
+                سفارش‌ها ({userOrders.length})
               </TabsTrigger>
               <TabsTrigger value="settings">
                 <Settings className="h-4 w-4 ml-2" />
                 تنظیمات
               </TabsTrigger>
             </TabsList>
+
+            <div className="flex gap-2 mt-4">
+              <Button variant="outline" size="sm" onClick={() => navigate('/wishlist')}>
+                <Heart className="h-4 w-4 ml-2" />
+                علاقه‌مندی‌ها
+              </Button>
+              {(user.role === 'seller' || user.role === 'admin') && (
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+                  <ShoppingBag className="h-4 w-4 ml-2" />
+                  پنل مدیریت
+                </Button>
+              )}
+            </div>
 
             <TabsContent value="profile" className="mt-6">
               <Card>
@@ -153,26 +152,42 @@ const Profile = () => {
                   <CardDescription>تاریخچه سفارش‌های خود را مشاهده کنید</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {orders.map((order) => (
-                      <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold">{order.id}</span>
-                            <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
-                              {order.status === 'delivered' ? 'تحویل شده' : 'در حال پردازش'}
-                            </Badge>
+                  {userOrders.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Package className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                      <p>هنوز سفارشی ثبت نکرده‌اید</p>
+                      <Button variant="outline" className="mt-4" onClick={() => navigate('/')}>
+                        مشاهده محصولات
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userOrders.map((order) => (
+                        <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold">{order.id}</span>
+                              <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
+                                {order.status === 'delivered' ? 'تحویل شده' : 
+                                 order.status === 'shipped' ? 'ارسال شده' :
+                                 order.status === 'processing' ? 'در حال پردازش' : 'در انتظار'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {order.items.map(item => item.product.name).join('، ')}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                            </p>
                           </div>
-                          <p className="text-sm text-muted-foreground">{order.items.join('، ')}</p>
-                          <p className="text-xs text-muted-foreground">{order.date}</p>
+                          <div className="text-left">
+                            <p className="font-bold">{order.total.toLocaleString()} تومان</p>
+                            <Button variant="ghost" size="sm" className="mt-1">مشاهده جزئیات</Button>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <p className="font-bold">{order.total.toLocaleString()} تومان</p>
-                          <Button variant="ghost" size="sm" className="mt-1">مشاهده جزئیات</Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

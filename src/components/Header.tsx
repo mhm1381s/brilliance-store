@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, User, Moon, Sun, Menu, X, Search, Zap, LogOut } from 'lucide-react';
+import { ShoppingCart, User, Moon, Sun, Menu, X, Search, Zap, LogOut, Heart, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User as UserType } from '@/types';
@@ -139,19 +140,38 @@ export function Header({
                   >
                     <span className="text-sm">{user.name}</span>
                     <Badge variant={user.role === 'seller' ? 'default' : 'secondary'} className="text-xs">
-                      {user.role === 'seller' ? 'فروشنده' : 'خریدار'}
+                      {user.role === 'admin' ? 'مدیر' : user.role === 'seller' ? 'فروشنده' : 'خریدار'}
                     </Badge>
                   </motion.button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={onOpenProfile}>
+                    <User className="h-4 w-4 ml-2" />
+                    پروفایل من
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/wishlist')}>
+                    <Heart className="h-4 w-4 ml-2" />
+                    علاقه‌مندی‌ها
+                  </DropdownMenuItem>
+                  {(user.role === 'seller' || user.role === 'admin') && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                        <LayoutDashboard className="h-4 w-4 ml-2" />
+                        پنل مدیریت
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   {user.role === 'seller' && (
                     <DropdownMenuItem onClick={onOpenDashboard}>
-                      پنل مدیریت
+                      <LayoutDashboard className="h-4 w-4 ml-2" />
+                      مدیریت محصولات
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={onLogout} 
-                    className="bg-gradient-to-r from-red-500 to-red-600 text-white focus:bg-red-600 focus:text-white mt-1 cursor-pointer"
+                    className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground mt-1 cursor-pointer"
                   >
                     <LogOut className="h-4 w-4 ml-2" />
                     خروج

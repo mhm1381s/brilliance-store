@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CartItem } from '@/types';
@@ -20,8 +21,15 @@ export function CartDrawer({
   onUpdateQuantity,
   onRemove,
 }: CartDrawerProps) {
+  const navigate = useNavigate();
+  
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fa-IR').format(price);
+  };
+
+  const handleCheckout = () => {
+    onClose();
+    navigate('/checkout');
   };
 
   return (
@@ -120,7 +128,11 @@ export function CartDrawer({
                       {formatPrice(cartTotal)} تومان
                     </span>
                   </div>
-                  <Button className="w-full bg-gradient-primary hover:opacity-90" size="lg">
+                  <Button 
+                    className="w-full bg-gradient-primary hover:opacity-90" 
+                    size="lg"
+                    onClick={handleCheckout}
+                  >
                     تکمیل خرید
                   </Button>
                 </div>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Store, Mail, Lock, Zap } from 'lucide-react';
+import { User, Store, Mail, Lock, Zap, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useStore } from '@/hooks/useStore';
 import { motion } from 'framer-motion';
+import { UserRole } from '@/types';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState<'buyer' | 'seller'>('buyer');
+  const [role, setRole] = useState<UserRole>('buyer');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,28 +40,39 @@ export default function Login() {
             </div>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <div className="grid grid-cols-3 gap-2 mb-6">
             <button
             onClick={() => setRole('buyer')}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 transition-all ${
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-3 transition-all ${
                 role === 'buyer'
                 ? 'bg-gradient-primary text-primary-foreground'
                 : 'bg-secondary text-foreground hover:bg-secondary/80'
             }`}
             >
             <User className="h-5 w-5" />
-            خریدار
+            <span className="text-sm">خریدار</span>
             </button>
             <button
             onClick={() => setRole('seller')}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 transition-all ${
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-3 transition-all ${
                 role === 'seller'
                 ? 'bg-gradient-primary text-primary-foreground'
                 : 'bg-secondary text-foreground hover:bg-secondary/80'
             }`}
             >
             <Store className="h-5 w-5" />
-            فروشنده
+            <span className="text-sm">فروشنده</span>
+            </button>
+            <button
+            onClick={() => setRole('admin')}
+            className={`flex flex-col items-center justify-center gap-1 rounded-xl py-3 transition-all ${
+                role === 'admin'
+                ? 'bg-gradient-primary text-primary-foreground'
+                : 'bg-secondary text-foreground hover:bg-secondary/80'
+            }`}
+            >
+            <Shield className="h-5 w-5" />
+            <span className="text-sm">مدیر</span>
             </button>
         </div>
 
