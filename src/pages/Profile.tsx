@@ -72,7 +72,7 @@ const Profile = () => {
           navigate('/');
         }}
         onOpenDashboard={() => {}}
-        onOpenProfile={() => {}}
+        onOpenProfile={() => user ? navigate('/profile') : navigate('/login')}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
@@ -88,13 +88,16 @@ const Profile = () => {
               <AvatarImage src={user.avatar} />
               <AvatarFallback className="text-2xl">{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-bold">{user.name}</h1>
               <p className="text-muted-foreground">{user.email}</p>
               <Badge variant={user.role === 'seller' ? 'default' : 'secondary'} className="mt-2">
                 {user.role === 'seller' ? 'فروشنده' : 'خریدار'}
               </Badge>
             </div>
+            <Button onClick={() => navigate('/')} variant="outline">
+              بازگشت به صفحه اصلی
+            </Button>
           </div>
 
           <Tabs defaultValue="profile" className="w-full">

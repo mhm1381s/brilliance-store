@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, User, Moon, Sun, Menu, X, Search, Zap, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +41,7 @@ export function Header({
   onSearchChange,
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <motion.header
@@ -49,8 +51,9 @@ export function Header({
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <motion.div
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer"
           whileHover={{ scale: 1.02 }}
+          onClick={() => navigate('/')}
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-primary">
             <Zap className="h-6 w-6 text-primary-foreground" />
@@ -103,6 +106,15 @@ export function Header({
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
+            onClick={onOpenProfile}
+            className="p-2 rounded-full hover:bg-secondary transition-colors"
+          >
+            <User className="h-5 w-5" />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onOpenCart}
             className="relative p-2 rounded-full hover:bg-secondary transition-colors"
           >
@@ -119,18 +131,8 @@ export function Header({
           </motion.button>
 
           {user ? (
-            <>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onOpenProfile}
-                className="p-2 rounded-full hover:bg-secondary transition-colors"
-              >
-                <User className="h-5 w-5" />
-              </motion.button>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5"
@@ -156,7 +158,6 @@ export function Header({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </>
           ) : (
             <Button onClick={onOpenAuth} variant="default" size="sm">
               ورود / ثبت‌نام
