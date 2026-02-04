@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
-import { Star, ShoppingCart, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Star, ShoppingCart, Eye, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types';
+import { useStore } from '@/hooks/useStore';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +15,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart, onView, index = 0 }: ProductCardProps) {
+  const navigate = useNavigate();
+  const { wishlist, toggleWishlist } = useStore();
+  const isInWishlist = wishlist.includes(product.id);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fa-IR').format(price);
   };
@@ -28,8 +35,21 @@ export function ProductCard({ product, onAddToCart, onView, index = 0 }: Product
         <motion.img
           src={product.image}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-pointer"
+          onClick={() => navigate(`/product/${product.id}`)}
         />
+        
+        {/* Wishlist Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product.id);
+            toast.success(isInWishlist ? 'از علاقه‌مندی‌ها حذف شد' : 'به علاقه‌مندی‌ها اضافه شد');
+          }}
+          className="absolute top-3 left-3 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors z-10"
+        >
+          <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+        </button>
         
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
@@ -49,20 +69,26 @@ export function ProductCard({ product, onAddToCart, onView, index = 0 }: Product
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => onView(product)}
+            onClick={() => navigate(`/product/${product.id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
         </motion.div>
 
-        {product.stock < 10 && (
+        {product.discount && (
+          <Badge className="absolute top-3 right-3 bg-red-500 text-white">
+            {product.discount}% تخفیف
+          </Badge>
+        )}
+        
+        {!product.discount && product.stock < 10 && (
           <Badge className="absolute top-3 right-3 bg-destructive">
             تنها {product.stock} عدد
           </Badge>
         )}
       </div>
 
-      <div className="p-4">
+      <div className="p-4 cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
         <Badge variant="secondary" className="mb-2 text-xs">
           {product.category}
         </Badge>
@@ -83,6 +109,11 @@ export function ProductCard({ product, onAddToCart, onView, index = 0 }: Product
 
         <div className="flex items-center justify-between">
           <div>
+            {product.originalPrice && (
+              <span className="text-sm text-muted-foreground line-through ml-2">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
             <span className="text-lg font-bold text-primary">
               {formatPrice(product.price)}
             </span>
