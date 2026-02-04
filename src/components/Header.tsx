@@ -103,15 +103,6 @@ export function Header({
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            onClick={onOpenProfile}
-            className="p-2 rounded-full hover:bg-secondary transition-colors"
-          >
-            <User className="h-5 w-5" />
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
             onClick={onOpenCart}
             className="relative p-2 rounded-full hover:bg-secondary transition-colors"
           >
